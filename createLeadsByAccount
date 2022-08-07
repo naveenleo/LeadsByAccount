@@ -1,0 +1,39 @@
+/*
+
+ * create zohocrm function.
+ * workflow rule: on create account.
+ * Description: Create leads using the data of a company given.
+ * Scenario: The case in which the company has to add the employees data to create leads for their specific process.
+ * Constraints: my-json-server.typicode.com or the domain to be accessed.
+
+*/
+
+
+
+leads = getUrl(thirdPartyUrl).toJSONList();
+string_response = "";
+mail_result = list();
+for each  lead in leads
+{
+	lead.put("Layout",{"Layout Name":"Standard","id":layoutId});
+	lead.put("Company",companyName);
+	response = zoho.crm.createRecord("Leads",lead);
+	if(response.getJSON("status") == "error")
+	{
+		string_response = lead.getJSON("Employe_ID") + " -----> " + response.getJSON("code") + "( " + response.getJSON("details").getJSON("api_name") + " )";
+		info response.getJSON("api_name") + " " + response;
+		mail_result.add(string_response);
+	}
+}
+
+
+// send mail if there is any invalid data
+sendmail
+[
+	from :zoho.loginuserid
+	to :"naveenctcool@gmail.com"
+	subject :"Error in updation"
+	message :mail_result
+]
+info "======";
+return "SUCCESS";
